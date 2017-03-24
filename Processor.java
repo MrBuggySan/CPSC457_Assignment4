@@ -1,5 +1,5 @@
 public class Processor implements Runnable{
-  private DSM dsm;
+  private Thread dsmThread;
   private TokenRingAgent tokenRingAgent;
 
   private int numProcessors;
@@ -14,7 +14,7 @@ public class Processor implements Runnable{
   }
 
   private void loadData(){
-    //get the data from DSM
+    //message the DSM to load the data
 
     //TODO:Are we communicating with an already running DSM or do we start the thread of DSM here?
   }
@@ -53,7 +53,7 @@ public class Processor implements Runnable{
   private void enterCriticalSection(){
       //TODO:Are we communicating with an already running DSM or do we start the thread of DSM here?
 
-      //start the DSM store
+      //message the DSM to store
   }
 
   private void unlock(){
@@ -61,6 +61,10 @@ public class Processor implements Runnable{
   }
 
   public void run(){
+
+    PrintToScreen.threadMessage(Thread.currentThread().getName() + " with id " + processID, "Starting DSM thread");
+    Thread dsmThread = new Thread(new DSM());
+
     while(1){
       //load some data
       loadData();

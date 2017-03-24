@@ -11,6 +11,7 @@ public class DSM implements Runnable{
   }
 
   public void store(int address, int value){
+    //while(not have the token);
     localMemory.store(address, value);
     broadcastAgent.broadcast(address, value);
   }
