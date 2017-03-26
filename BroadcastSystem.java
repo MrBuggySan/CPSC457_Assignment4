@@ -1,6 +1,6 @@
 public class BroadcastSystem implements Runnable{
 
-  private static byte = 0;
+  private static byte bLimit = 0;
 
   private BroadcastSystem(){
 

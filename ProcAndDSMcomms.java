@@ -7,7 +7,8 @@ public class ProcAndDSMComms{
   public ProcAndDSMComms(){
     doALoad = false;
     doAWrite = false;
-    finishedLoad = false;
+    
+    
   }
 
   private void setLoadCommand(){
@@ -23,8 +24,8 @@ public class ProcAndDSMComms{
 //used by processor only
   public synchronized void doALoad(int index){
     this.index = index;
-    finishedLoad = false;
     setLoadCommand();
+    
   }
 
 
@@ -42,5 +43,5 @@ public class ProcAndDSMComms{
 
   public synchronized int getValue(){return value;}
 
-  public synchronized void setValue(){return value;}
+  public synchronized void setValue(int value){this.value = value;}
 }

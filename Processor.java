@@ -1,5 +1,10 @@
+import java.lang.Exception;
+import java.lang.InterruptedException;
+
 public class Processor implements Runnable{
   private Thread dsmThread;
+  private Thread processorThread;
+  
   private TokenRingAgent tokenRingAgent;
 
   private int numProcessors;
@@ -14,24 +19,40 @@ public class Processor implements Runnable{
     this.processID = processID;
     this.Flag = Flag;
     this.Turn = Turn;
+    
+    
+    processorThread = new Thread(this);
+    processorThread.start();
+  }
+  
+  //temporary
+  public Processor(){
+	  
+	  processorThread = new Thread(this);
+	  processorThread.start();
   }
 
   private void loadData(int index){
-    //setup the ProcAndDSMComms
+    //init the load
     procAndDSMComms.doALoad(index);
     //interrupt the DSM to load the data
     dsmThread.interrupt();
     //wait for the result
     try{
-      wait();
-    }catch(InterrruptedException e){
-      PrintToScreen.threadMessage(officialName, "from InterrruptedException");
+    	while(true){
+    		Thread.sleep(100);
+    	}
+    }catch(InterruptedException e){
+//      PrintToScreen.threadMessage(officialName, "from InterrruptedException");
+      //read the result from ProcAndDSMComms
+      int result = procAndDSMComms.getValue();
+      PrintToScreen.threadMessage(officialName, result + " is the value in index " + index);
+      return;
     }catch(Exception e){
-      PrintToScreen.threadMessage(officialName, "from Exception");
+    	//unexpected error
+    	PrintToScreen.threadMessage(officialName, e.getStackTrace().toString());
     }
-    //read the result from ProcAndDSMComms
-    int result = procAndDSMComms.getValueFromLoad();
-    PrintToScreen.threadMessage(officialName, result + " is the value in " + index);
+
   }
 
   private void storeData(){
@@ -41,6 +62,7 @@ public class Processor implements Runnable{
     //lock();
   }
 
+  /*
   private void lock(){
     int criticalSectionLevel = numPlayers - 1; // is this - 1 or - 2?
     for(int currentLevel = 0; j < criticalSectionLevel; currentLevel++ ){ //TODO: check the conditions, should we test at the level before Critical section ?
@@ -56,7 +78,7 @@ public class Processor implements Runnable{
     //enter the critical section
     enterCriticalSection();
   }
-
+*/
   private boolean thereIsProcessAtHigherLevel(int currentLevel){
     //loop through and see if any processID is at a higher level than currentLevel
     for(int i = 0; i < numProcessors; i++){
@@ -71,27 +93,24 @@ public class Processor implements Runnable{
       //message the DSM to store
   }
 
+  /*
   private void unlock(){
     Flag[processorID] = -1;
   }
-
+*/
   public void run(){
-    officialName = Thread.currentThread().getName() + ", id: " + processID;
-    PrintToScreen.threadMessage(officialName, "Starting DSM thread");
-
-    procAndDSMComms = new ProcAndDSMComms();
-    Thread dsmThread = new Thread(new DSM(procAndDSMComms, Thread.currentThread(), processID));
-    dsmThread.start();
-
-
-    //This thread and dsm thread will share an object which will be used to communicate messages. Whether to load/store
-
-    for(int i = 0; i < 10; i++){
-      //load some data
-      loadData(i);
-
-      //store some data
-      // storeData();
-    }
+	officialName = Thread.currentThread().getName() + ", id: " + processID;
+	PrintToScreen.threadMessage(officialName, "Starting DSM thread");
+	procAndDSMComms = new ProcAndDSMComms();
+	dsmThread = (new DSM(procAndDSMComms, Thread.currentThread(), processID)).startThread();
+	
+	
+	for(int i = 0; i < 10; i++){
+	  //load some data
+	  loadData(i);
+	
+	  //store some data
+	  // storeData();
+	}
   }
 }

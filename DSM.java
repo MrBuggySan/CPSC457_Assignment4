@@ -1,3 +1,5 @@
+import java.lang.InterruptedException;
+
 public class DSM implements Runnable{
   private LocalMemory localMemory;
   private BroadcastAgent broadcastAgent;
@@ -5,26 +7,39 @@ public class DSM implements Runnable{
   private Thread procThread;
   private String officialName;
   private int processID;
+  private Thread dsmThread;
 
   public DSM(ProcAndDSMComms procAndDSMComms, Thread procThread, int processID){
-    this.procAndDSMComms = procAndDSMComms;
+	  officialName = "DSM of " + procThread.getName() + ", processor id: " + processID;
+	  this.procAndDSMComms = procAndDSMComms;
     this.procThread = procThread;
-    localMemory = new localMemory();
+    
     this.processID = processID;
-    officialName = "DSM of " + procThread.getName() + ", id: " + processID;
+    
+    localMemory = new LocalMemory(processID);
+    
+    dsmThread = new Thread(this);
+  }
+  
+  public Thread startThread(){
+	  dsmThread.start();
+	  return dsmThread;
   }
 
   public void run(){
-    while(1){
+	  PrintToScreen.threadMessage(officialName, "Starting DSM thread");
+    while(true){
       try{
         //wait for interrupt from processor
-        wait();
-      }catch(InterrruptedException e){
+        while(true){
+        	Thread.sleep(100);
+        }
+      }catch(InterruptedException e){
         //determine what DSM has to do
         if(procAndDSMComms.doILoad()){
           // do a load from local memory
           procAndDSMComms.setValue(this.load(procAndDSMComms.getIndex()));
-          PrintToScreen.threadMessage(officialName, "Starting DSM thread");
+//          PrintToScreen.threadMessage(officialName, "Finished loading, now waking up the processor");
           //wake up the processor
           procThread.interrupt();
 
@@ -32,16 +47,14 @@ public class DSM implements Runnable{
           if(procAndDSMComms.doIStore()){
             //do a store to local memory
 
-
             //Use the broadcastAgent to tell the others of this write
 
           }else{
             //We should never get here
+     
           }
         }
-
-      }catch(){
-
+     
       }
     }
   }
@@ -50,9 +63,10 @@ public class DSM implements Runnable{
     return localMemory.load(address);
   }
 
+  /*
   private void store(int address, int value){
     //while(not have the token);
     localMemory.store(address, value);
     broadcastAgent.broadcast(address, value);
-  }
+  }*/
 }

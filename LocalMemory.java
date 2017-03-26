@@ -1,10 +1,11 @@
+import java.util.ArrayList;
 import java.util.Random;
 
 public class LocalMemory{
   private ArrayList<Integer> memoryArray;
-  private final arraySize = 10;
+  private final int arraySize = 10;
 
-  public LocalMemory(){
+  public LocalMemory(int id){
 
     Random rand = new Random();
     int n;
@@ -13,7 +14,7 @@ public class LocalMemory{
       //fill the local memory with random values between 50 and 1, to replicate garbage values
       n = rand.nextInt(50) + 1;
       memoryArray.add(new Integer(n));
-      System.out.println("index " + i + ", value" + n);
+      System.out.println("id " + id + ",index " + i + ", value " + n);
     }
   }
 
