@@ -7,23 +7,38 @@ public class Processor implements Runnable{
   private int[] Turn;
   private int processID;
 
+  private ProcAndDSMComms procAndDSMComms;
+  private String officialName;
+
   public Processor(int processID, int[] Flag, int[] Turn){
     this.processID = processID;
     this.Flag = Flag;
     this.Turn = Turn;
   }
 
-  private void loadData(){
-    //message the DSM to load the data
-
-    //TODO:Are we communicating with an already running DSM or do we start the thread of DSM here?
+  private void loadData(int index){
+    //setup the ProcAndDSMComms
+    procAndDSMComms.doALoad(index);
+    //interrupt the DSM to load the data
+    dsmThread.interrupt();
+    //wait for the result
+    try{
+      wait();
+    }catch(InterrruptedException e){
+      PrintToScreen.threadMessage(officialName, "from InterrruptedException");
+    }catch(Exception e){
+      PrintToScreen.threadMessage(officialName, "from Exception");
+    }
+    //read the result from ProcAndDSMComms
+    int result = procAndDSMComms.getValueFromLoad();
+    PrintToScreen.threadMessage(officialName, result + " is the value in " + index);
   }
 
   private void storeData(){
     //Initialize the data to be used by the DSM
 
     //try to get into critical section
-    lock();
+    //lock();
   }
 
   private void lock(){
@@ -61,16 +76,22 @@ public class Processor implements Runnable{
   }
 
   public void run(){
+    officialName = Thread.currentThread().getName() + ", id: " + processID;
+    PrintToScreen.threadMessage(officialName, "Starting DSM thread");
 
-    PrintToScreen.threadMessage(Thread.currentThread().getName() + " with id " + processID, "Starting DSM thread");
-    Thread dsmThread = new Thread(new DSM());
+    procAndDSMComms = new ProcAndDSMComms();
+    Thread dsmThread = new Thread(new DSM(procAndDSMComms, Thread.currentThread(), processID));
+    dsmThread.start();
 
-    while(1){
+
+    //This thread and dsm thread will share an object which will be used to communicate messages. Whether to load/store
+
+    for(int i = 0; i < 10; i++){
       //load some data
-      loadData();
+      loadData(i);
 
       //store some data
-      storeData();
+      // storeData();
     }
   }
 }

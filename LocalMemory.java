@@ -8,12 +8,12 @@ public class LocalMemory{
 
     Random rand = new Random();
     int n;
-
     memoryArray = new ArrayList<>();
     for(int i = 0; i < arraySize; i++){
       //fill the local memory with random values between 50 and 1, to replicate garbage values
       n = rand.nextInt(50) + 1;
       memoryArray.add(new Integer(n));
+      System.out.println("index " + i + ", value" + n);
     }
   }
 
