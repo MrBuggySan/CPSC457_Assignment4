@@ -14,7 +14,7 @@ public class Processor implements Runnable{
   private int[] Turn;
   private int processID;
 
-  private ProcAndDSMComms procAndDSMComms;
+ 
   private String officialName;
 
   public Processor(int processID, int[] Flag, int[] Turn, Thread broadcastSystemThread){
@@ -23,8 +23,8 @@ public class Processor implements Runnable{
     this.Turn = Turn;
     
     processorThread = new Thread(this);
-    procAndDSMComms = new ProcAndDSMComms();
-    dsm = new DSM(procAndDSMComms, processorThread, processID, broadcastSystemThread);
+   
+    dsm = new DSM(processorThread, processID, broadcastSystemThread);
 	dsmThread = dsm.startThread();
 	officialName = Thread.currentThread().getName() + ", id: " + processID;
 	
@@ -34,7 +34,7 @@ public class Processor implements Runnable{
 
   private void loadData(int index){
     //init the load
-    procAndDSMComms.doALoad(index);
+    dsm.doALoad(index);
     //interrupt the DSM to load the data
     dsmThread.interrupt();
     //wait for the result
@@ -44,7 +44,7 @@ public class Processor implements Runnable{
     	}
     }catch(InterruptedException e){
       //read the result from ProcAndDSMComms
-      int result = procAndDSMComms.getValue();
+      int result = dsm.getValue();
       PrintToScreen.threadMessage(officialName, result + " is the value in index " + index);
       return;
     }catch(Exception e){
@@ -56,7 +56,7 @@ public class Processor implements Runnable{
 
   private void storeData(int index, int value){
     //Initialize the data to be used by the DSM
-	  procAndDSMComms.doAStore(index, value);
+	  dsm.doAStore(index, value);
 	//interrupt the DSM to store the data
 	  dsmThread.interrupt();
 	  

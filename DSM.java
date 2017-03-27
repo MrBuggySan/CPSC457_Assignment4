@@ -4,29 +4,62 @@ public class DSM implements Runnable{
   private LocalMemory localMemory;
   private BroadcastAgent broadcastAgent;
   
-  private ProcAndDSMComms procAndDSMComms;
-  private DSMandBAgentComms dSMandBAgentComms;
+ 
   
   private String officialName;
   private int processID;
   
+  private int index;
+  private int value;
+  private boolean doALoad;
+  private boolean doAWrite;
   
   private Thread dsmThread;
   private Thread procThread;
   private Thread broadcastAgentThread;
   
-  public DSM(ProcAndDSMComms procAndDSMComms, Thread procThread, int processID, Thread broadcastSystemThread){
+  public DSM(Thread procThread, int processID, Thread broadcastSystemThread){
 	  officialName = "DSM of " + procThread.getName() + ", processor id: " + processID;
-	  this.procAndDSMComms = procAndDSMComms;
+	  
     this.procThread = procThread;
     this.processID = processID;
     
     localMemory = new LocalMemory(processID);
-    dSMandBAgentComms = new DSMandBAgentComms();
-    broadcastAgentThread = (new BroadcastAgent(dSMandBAgentComms, broadcastSystemThread, localMemory, processID)).startThread();
+    
+    broadcastAgent = new BroadcastAgent( broadcastSystemThread, localMemory, processID);
+    broadcastAgentThread = broadcastAgent.startThread();
   
     dsmThread = new Thread(this);
   }
+  
+  private void setLoadCommand(){
+    doALoad = true;
+    doAWrite = false;
+  }
+
+  private void setStoreCommand(){
+    doALoad = false;
+    doAWrite = true;
+  }
+
+  
+  public  void doALoad(int index){
+    this.index = index;
+    setLoadCommand();
+    
+  }
+  
+  public void doAStore(int index, int value){  
+	  this.index = index;
+	  this.value = value;
+	  setStoreCommand();
+	    
+  }
+  
+  public int getValue(){return value;}
+  
+  
+	  
   
   public Thread startThread(){
 	  dsmThread.start();
@@ -43,17 +76,17 @@ public class DSM implements Runnable{
         }
       }catch(InterruptedException e){
         //determine what DSM has to do
-        if(procAndDSMComms.doILoad()){
+        if(doALoad){
           // do a load from local memory
-          procAndDSMComms.setValue(this.load(procAndDSMComms.getIndex()));
+          value = this.load(index);
 //          PrintToScreen.threadMessage(officialName, "Finished loading, now waking up the processor");
           //wake up the processor
           procThread.interrupt();
 
         }else{
-          if(procAndDSMComms.doIStore()){
+          if(doAWrite){
             //do a store to local memory
-        	  store(procAndDSMComms.getIndex(), procAndDSMComms.getValue());
+        	  store(index, value);
           }else{
             //We should never get here
      
@@ -74,7 +107,7 @@ public class DSM implements Runnable{
     localMemory.store(address, value);
     
     //Use the broadcastAgent to tell the others of this write
-    dSMandBAgentComms.doaBroadcast(address,value);
+    broadcastAgent.doaBroadcast(address,value);
     broadcastAgentThread.interrupt();
     
   }
