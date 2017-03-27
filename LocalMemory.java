@@ -14,12 +14,12 @@ public class LocalMemory{
       //fill the local memory with random values between 50 and 1, to replicate garbage values
       n = rand.nextInt(50) + 1;
       memoryArray.add(new Integer(n));
-      System.out.println("id " + id + ",index " + i + ", value " + n);
+      // System.out.println("id " + id + ",index " + i + ", value " + n);
     }
   }
 
-  //TODO: activate synchronization 
-  
+  //TODO: activate synchronization
+
   public int load(int address){
     return memoryArray.get(address);
   }

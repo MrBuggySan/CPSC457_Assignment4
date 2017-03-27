@@ -4,33 +4,33 @@ import java.lang.InterruptedException;
 public class Processor implements Runnable{
   private Thread dsmThread;
   private DSM dsm;
-  
+
   private Thread processorThread;
-  
+
   private TokenRingAgent tokenRingAgent;
 
   private int numProcessors;
   private int[] Flag;
   private int[] Turn;
-  private int processID;
+  private int processorID;
 
- 
+
   private String officialName;
 
-  public Processor(int processID, int[] Flag, int[] Turn, Thread broadcastSystemThread, BroadcastSystem broadcastSystem){
-    this.processID = processID;
+  public Processor(int processorID, int[] Flag, int[] Turn, Thread broadcastSystemThread, BroadcastSystem broadcastSystem){
+    this.processorID = processorID;
     this.Flag = Flag;
     this.Turn = Turn;
-    
+
     processorThread = new Thread(this);
-   
-    dsm = new DSM(processorThread, processID, broadcastSystemThread, broadcastSystem);
-	dsmThread = dsm.startThread();
-	officialName = Thread.currentThread().getName() + ", id: " + processID;
-	
-	processorThread.start();
+
+    dsm = new DSM(processorThread, processorID, broadcastSystemThread, broadcastSystem);
+  	dsmThread = dsm.startThread();
+  	officialName = "processor id: " + processorID;
+
+  	processorThread.start();
   }
-  
+
 
   private void loadData(int index){
     //init the load
@@ -45,7 +45,7 @@ public class Processor implements Runnable{
     }catch(InterruptedException e){
       //read the result from ProcAndDSMComms
       int result = dsm.getValue();
-      PrintToScreen.threadMessage(officialName, result + " is the value in index " + index);
+      // PrintToScreen.threadMessage(officialName, result + " is the value in index " + index);
       return;
     }catch(Exception e){
     	//unexpected error
@@ -56,26 +56,19 @@ public class Processor implements Runnable{
 
   private void storeData(int index, int value){
     //Initialize the data to be used by the DSM
-	  dsm.doAStore(index, value);
-	//interrupt the DSM to store the data
-	  dsmThread.interrupt();
-	  
-	  try{
-			Thread.sleep(100);
-		}catch(InterruptedException e){
-			
-		}
-	  
+    dsm.doAStore(index, value);
+
     //try to get into critical section
-    //lock();
+    lock();
   }
 
-  /*
+
   private void lock(){
+    int numPlayers = Assignment4.numProcessors;
     int criticalSectionLevel = numPlayers - 1; // is this - 1 or - 2?
-    for(int currentLevel = 0; j < criticalSectionLevel; currentLevel++ ){ //TODO: check the conditions, should we test at the level before Critical section ?
-      Flag[processID] = currentLevel; // keept track of the processsor's level
-      Turn[currentLevel] = processID; // keep track of the last processor to enter the currentLevel
+    for(int currentLevel = 0; currentLevel < criticalSectionLevel; currentLevel++ ){ //TODO: check the conditions, should we test at the level before Critical section ?
+      Flag[processorID] = currentLevel; // keept track of the processsor's level
+      Turn[currentLevel] = processorID; // keep track of the last processor to enter the currentLevel
       //While there is another process at a higher level and the board at the current level has the id
       //of the ith player on the level board, stay in the current level.
       while( thereIsProcessAtHigherLevel(currentLevel) && Turn[currentLevel] == processorID){
@@ -86,45 +79,52 @@ public class Processor implements Runnable{
     //enter the critical section
     enterCriticalSection();
   }
-*/
+
   private boolean thereIsProcessAtHigherLevel(int currentLevel){
-    //loop through and see if any processID is at a higher level than currentLevel
-    for(int i = 0; i < numProcessors; i++){
-      if(Flag[i] >= currentLevel) return true;
+    //loop through and see if any processorID is at a higher level than currentLevel
+    for(int pid = 0; pid < numProcessors; pid++){
+      if(Flag[pid] >= currentLevel) return true;
     }
     return false;
   }
 
   private void enterCriticalSection(){
-      //TODO:Are we communicating with an already running DSM or do we start the thread of DSM here?
-
-      //message the DSM to store
+    //interrupt the DSM to store the data
+      dsmThread.interrupt();
+      try{
+        //Adjust the value here so that other objects under DSM and other DSMs can catch up
+        //the other BroadcastSystem has its own random delay
+        Thread.sleep(200);
+      }catch(InterruptedException e){
+      }
+      unlock();
   }
 
-  /*
+
   private void unlock(){
     Flag[processorID] = -1;
   }
-*/
+
   public void run(){
-	
-	PrintToScreen.threadMessage(officialName, "Starting processor commands");
-	
+
+	PrintToScreen.threadMessage(officialName, "Starting processor thread");
+
 	for(int i = 0; i < 10; i++){
 	  //load some data
 	  loadData(i);
 	}
-	
-	if(processID == 5){
+
+	if(processorID == 5 || processorID == 6){
 		for(int i = 0; i < 10; i++){
-			PrintToScreen.threadMessage(officialName, "storing " + i*10);
+      int storeVal = processorID * 10;
+      PrintToScreen.threadMessage(officialName, "storing " + storeVal);
 			  //store some data
-			  storeData(i, i*10);
+			  storeData(i, storeVal);
 		}
 	}
-	
-	
+
+
   }
-  
-  
+
+
 }

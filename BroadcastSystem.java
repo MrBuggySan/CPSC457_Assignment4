@@ -1,15 +1,18 @@
+import java.util.Random;
+
+
 public class BroadcastSystem implements Runnable{
 
   private static byte bLimit = 0;
   private BroadcastAgent[] broadcastAgentList;
   private Thread[] broadcastAgentThreadList;
-  
+
   private boolean doABroadcast;
 	private int address;
 	private int value;
 	private int callerID;
 	private int procSize;
-  
+
   private BroadcastSystem(int procSize){
 	this.procSize = procSize;
 	broadcastAgentList = new BroadcastAgent[procSize];
@@ -25,12 +28,12 @@ public class BroadcastSystem implements Runnable{
     }
     return null;
   }
-  
-  
+
+
   public void setValue(int value){
 	  this.value= value;
   }
-  
+
   public void doaBroadcast(int address, int value, int id){
 		doABroadcast = true;
 		this.callerID = id;
@@ -39,6 +42,7 @@ public class BroadcastSystem implements Runnable{
 	}
 
   public void run(){
+    PrintToScreen.threadMessage("BroadcastSystem", "Starting BroadcastAgent thread");
 	  while(true){
 	  		try{
 	  		//wait for interrupt from DSM to do a store
@@ -52,23 +56,28 @@ public class BroadcastSystem implements Runnable{
 		  					if(i == callerID) continue;
 		  					broadcastAgentList[i].recieveStore(address, value);
 		  					broadcastAgentThreadList[i].interrupt();
-		  					//simulate delay in broadcastSystem
-		  					Thread.sleep(10);
+		  					//simulate random delay in broadcastSystem
+                Random rand = new Random();
+                int n = rand.nextInt(50) + 1; //random delay between 1ms and 50ms
+                PrintToScreen.threadMessage("BroadcastSystem", "agent "+ callerID + " stores " + value + ", index " + address);
+		  					Thread.sleep(n);
 		  				}
-		  				
+
 		  				//finished broadcasting
 		  				doABroadcast = false;
 		  			}else{
 		  				//we should never get here
-		  			}	
+		  			}
 	  			}catch(InterruptedException t){
-	  				//I hope we don't get here
+              //I hope we don't get here
+              PrintToScreen.threadMessage("BroadcastSystem", "interrupted while still broadcasting");
+
 	  			}
-	  			
+
 	  		}
 	  	}
   }
-  
+
   public void addBroadcastAgent(BroadcastAgent broadcastAgent, Thread broadcastAgentThread){
 	  broadcastAgentList[broadcastAgent.getID()] = broadcastAgent;
 	  broadcastAgentThreadList[broadcastAgent.getID()]= broadcastAgentThread;
