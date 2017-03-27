@@ -15,22 +15,19 @@ public class Processor implements Runnable{
   private ProcAndDSMComms procAndDSMComms;
   private String officialName;
 
-  public Processor(int processID, int[] Flag, int[] Turn){
+  public Processor(int processID, int[] Flag, int[] Turn, Thread broadcastSystemThread){
     this.processID = processID;
     this.Flag = Flag;
     this.Turn = Turn;
     
-    
     processorThread = new Thread(this);
-    processorThread.start();
+    procAndDSMComms = new ProcAndDSMComms();
+	dsmThread = (new DSM(procAndDSMComms, processorThread, processID, broadcastSystemThread)).startThread();
+	officialName = Thread.currentThread().getName() + ", id: " + processID;
+	
+	processorThread.start();
   }
   
-  //temporary
-  public Processor(){
-	  
-	  processorThread = new Thread(this);
-	  processorThread.start();
-  }
 
   private void loadData(int index){
     //init the load
@@ -55,9 +52,11 @@ public class Processor implements Runnable{
 
   }
 
-  private void storeData(){
+  private void storeData(int index, int value){
     //Initialize the data to be used by the DSM
-
+	  procAndDSMComms.doAStore(index, value);
+	//interrupt the DSM to store the data
+	  dsmThread.interrupt();
     //try to get into critical section
     //lock();
   }
@@ -99,18 +98,17 @@ public class Processor implements Runnable{
   }
 */
   public void run(){
-	officialName = Thread.currentThread().getName() + ", id: " + processID;
-	PrintToScreen.threadMessage(officialName, "Starting DSM thread");
-	procAndDSMComms = new ProcAndDSMComms();
-	dsmThread = (new DSM(procAndDSMComms, Thread.currentThread(), processID)).startThread();
 	
+	PrintToScreen.threadMessage(officialName, "Starting processor commands");
 	
 	for(int i = 0; i < 10; i++){
 	  //load some data
 	  loadData(i);
-	
-	  //store some data
-	  // storeData();
 	}
+	/*
+	for(int i = 0; i < 10; i++){
+		  //store some data
+		  storeData(i, i*10);
+		}*/
   }
 }

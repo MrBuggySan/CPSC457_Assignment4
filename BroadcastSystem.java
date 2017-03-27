@@ -6,7 +6,7 @@ public class BroadcastSystem implements Runnable{
 
   }
 
-  //only one Broadcastsystem can exist
+  //only one BroadcastSystem can exist
   public static BroadcastSystem getInstance(){
     if( bLimit < 1 ){
         BroadcastSystem broadcastSystem = new BroadcastSystem();

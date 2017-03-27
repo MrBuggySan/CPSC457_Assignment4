@@ -16,7 +16,7 @@ public class ProcAndDSMComms{
     doAWrite = false;
   }
 
-  private void setWriteCommand(){
+  private void setStoreCommand(){
     doALoad = false;
     doAWrite = true;
   }
@@ -26,6 +26,13 @@ public class ProcAndDSMComms{
     this.index = index;
     setLoadCommand();
     
+  }
+  
+  public synchronized void doAStore(int index, int value){  
+	  this.index = index;
+	  this.value = value;
+	  setStoreCommand();
+	    
   }
 
 

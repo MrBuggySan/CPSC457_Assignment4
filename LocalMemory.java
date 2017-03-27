@@ -18,6 +18,8 @@ public class LocalMemory{
     }
   }
 
+  //TODO: activate synchronization 
+  
   public int load(int address){
     return memoryArray.get(address);
   }
