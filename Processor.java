@@ -28,10 +28,13 @@ public class Processor implements Runnable{
   	dsmThread = dsm.startThread();
   	officialName = TextColor.ANSI_RED + "processor id: " + processorID + TextColor.ANSI_RESET;
 
-  	processorThread.start();
+
   }
 
-
+  public Thread startThread(){
+    processorThread.start();
+    return processorThread;
+  }
   private void loadData(int index){
     //init the load
     dsm.doALoad(index);
@@ -108,8 +111,18 @@ public class Processor implements Runnable{
   }
 
   public void run(){
+  	PrintToScreen.threadMessage(officialName, "ready to start instructions");
+    try{
+      Assignment4.numReady++;
+      while(true){
+        Thread.sleep(100);
+      }
+    }catch(InterruptedException e){
 
-	PrintToScreen.threadMessage(officialName, "Starting processor thread");
+    }
+
+
+	PrintToScreen.threadMessage(officialName, "Starting now...");
 
 	for(int i = 0; i < 10; i++){
 	  //load some data
