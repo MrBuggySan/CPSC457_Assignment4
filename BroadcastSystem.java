@@ -6,6 +6,8 @@ public class BroadcastSystem implements Runnable{
   private static byte bLimit = 0;
   private BroadcastAgent[] broadcastAgentList;
   private Thread[] broadcastAgentThreadList;
+  private String officialName;
+
 
   private boolean doABroadcast;
 	private int address;
@@ -14,9 +16,10 @@ public class BroadcastSystem implements Runnable{
 	private int procSize;
 
   private BroadcastSystem(int procSize){
-	this.procSize = procSize;
-	broadcastAgentList = new BroadcastAgent[procSize];
-	broadcastAgentThreadList = new Thread[procSize];
+  	this.procSize = procSize;
+  	broadcastAgentList = new BroadcastAgent[procSize];
+  	broadcastAgentThreadList = new Thread[procSize];
+    officialName = TextColor.ANSI_GREEN + "BroadcastSystem" + TextColor.ANSI_RESET;
   }
 
   //only one BroadcastSystem can exist
@@ -52,17 +55,18 @@ public class BroadcastSystem implements Runnable{
 	  		}catch(InterruptedException e){
 	  			try{
 	  				if(doABroadcast){
-		  				for(int i = 0 ; i < procSize; i++){
+              PrintToScreen.threadMessage(officialName, "proc "+ callerID + " wants everyone else to store " + value + ", at index " + address);
+              for(int i = 0 ; i < procSize; i++){
 		  					if(i == callerID) continue;
 		  					broadcastAgentList[i].recieveStore(address, value);
 		  					broadcastAgentThreadList[i].interrupt();
-		  					//simulate random delay in broadcastSystem
-                Random rand = new Random();
-                int n = rand.nextInt(50) + 1; //random delay between 1ms and 50ms
-                PrintToScreen.threadMessage("BroadcastSystem", "agent "+ callerID + " stores " + value + ", index " + address);
-		  					Thread.sleep(n);
-		  				}
 
+		  				}
+              //simulate random delay in broadcastSystem
+              Random rand = new Random();
+              int n = rand.nextInt(20) + 1; //random delay between 1ms and 50ms
+
+              Thread.sleep(n);
 		  				//finished broadcasting
 		  				doABroadcast = false;
 		  			}else{
@@ -70,7 +74,7 @@ public class BroadcastSystem implements Runnable{
 		  			}
 	  			}catch(InterruptedException t){
               //I hope we don't get here
-              PrintToScreen.threadMessage("BroadcastSystem", "interrupted while still broadcasting");
+              PrintToScreen.threadMessage(officialName, "interrupted while still broadcasting");
 
 	  			}
 

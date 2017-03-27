@@ -18,7 +18,7 @@ public class LocalMemory{
     }
   }
 
-  //TODO: activate synchronization
+  //TODO: activate synchronization since this object is shared by DSM and BroadcastAgent
 
   public int load(int address){
     return memoryArray.get(address);

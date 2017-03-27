@@ -26,7 +26,7 @@ public class Processor implements Runnable{
 
     dsm = new DSM(processorThread, processorID, broadcastSystemThread, broadcastSystem);
   	dsmThread = dsm.startThread();
-  	officialName = "processor id: " + processorID;
+  	officialName = TextColor.ANSI_RED + "processor id: " + processorID + TextColor.ANSI_RESET;
 
   	processorThread.start();
   }
@@ -89,13 +89,15 @@ public class Processor implements Runnable{
   }
 
   private void enterCriticalSection(){
+    PrintToScreen.threadMessage(officialName, TextColor.ANSI_BLUE + "Now in critical section, to store " + TextColor.ANSI_RESET);
     //interrupt the DSM to store the data
       dsmThread.interrupt();
       try{
         //Adjust the value here so that other objects under DSM and other DSMs can catch up
-        //the other BroadcastSystem has its own random delay
+        //the BroadcastSystem has its own random delay
         Thread.sleep(200);
       }catch(InterruptedException e){
+          PrintToScreen.threadMessage(officialName, " interrupted while in critical section");
       }
       unlock();
   }
@@ -114,10 +116,10 @@ public class Processor implements Runnable{
 	  loadData(i);
 	}
 
-	if(processorID == 5 || processorID == 6){
+	if(processorID == 5){
 		for(int i = 0; i < 10; i++){
       int storeVal = processorID * 10;
-      PrintToScreen.threadMessage(officialName, "storing " + storeVal);
+      PrintToScreen.threadMessage(officialName, TextColor.ANSI_BLUE + "Attempting to store " + storeVal + TextColor.ANSI_RESET);
 			  //store some data
 			  storeData(i, storeVal);
 		}
