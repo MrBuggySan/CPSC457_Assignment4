@@ -7,8 +7,6 @@ public class ProcAndDSMComms{
   public ProcAndDSMComms(){
     doALoad = false;
     doAWrite = false;
-    
-    
   }
 
   private void setLoadCommand(){

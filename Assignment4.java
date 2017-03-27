@@ -1,5 +1,5 @@
 public class Assignment4{
-	private static int numProcessors = 1;
+	private static int numProcessors = 10;
 	
   public static void main(String[] args){
     //initialize everything
@@ -9,6 +9,7 @@ public class Assignment4{
 	//This is the only broadcastSystem available
 	BroadcastSystem broadcastSystem = BroadcastSystem.getInstance();
 	Thread broadcastSysThread = new Thread(broadcastSystem);
+	broadcastSystem.setValue(990);
 	broadcastSysThread.start();
 	
 	//start all processors

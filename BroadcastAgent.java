@@ -20,6 +20,12 @@ public class BroadcastAgent implements Runnable{
 		broadcastAgentThread = new Thread(this);
 	}
 	
+	  public Thread startThread(){
+		  broadcastAgentThread.start();
+		  return broadcastAgentThread;
+	  }
+
+	
   public void run(){
 	  	while(true){
 	  		try{
@@ -40,10 +46,6 @@ public class BroadcastAgent implements Runnable{
 	  	}
   }
   
-  public Thread startThread(){
-	  broadcastAgentThread.start();
-	  return broadcastAgentThread;
-  }
 
   public void broadcast(int index, int value){
 	  PrintToScreen.threadMessage(officialName, "broadcasting a store of index:"+index+" value:"+value);

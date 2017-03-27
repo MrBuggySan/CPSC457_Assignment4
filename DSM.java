@@ -46,7 +46,7 @@ public class DSM implements Runnable{
         if(procAndDSMComms.doILoad()){
           // do a load from local memory
           procAndDSMComms.setValue(this.load(procAndDSMComms.getIndex()));
-          PrintToScreen.threadMessage(officialName, "Finished loading, now waking up the processor");
+//          PrintToScreen.threadMessage(officialName, "Finished loading, now waking up the processor");
           //wake up the processor
           procThread.interrupt();
 

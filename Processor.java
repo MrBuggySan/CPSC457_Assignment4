@@ -3,6 +3,8 @@ import java.lang.InterruptedException;
 
 public class Processor implements Runnable{
   private Thread dsmThread;
+  private DSM dsm;
+  
   private Thread processorThread;
   
   private TokenRingAgent tokenRingAgent;
@@ -22,7 +24,8 @@ public class Processor implements Runnable{
     
     processorThread = new Thread(this);
     procAndDSMComms = new ProcAndDSMComms();
-	dsmThread = (new DSM(procAndDSMComms, processorThread, processID, broadcastSystemThread)).startThread();
+    dsm = new DSM(procAndDSMComms, processorThread, processID, broadcastSystemThread);
+	dsmThread = dsm.startThread();
 	officialName = Thread.currentThread().getName() + ", id: " + processID;
 	
 	processorThread.start();
@@ -40,7 +43,6 @@ public class Processor implements Runnable{
     		Thread.sleep(100);
     	}
     }catch(InterruptedException e){
-//      PrintToScreen.threadMessage(officialName, "from InterrruptedException");
       //read the result from ProcAndDSMComms
       int result = procAndDSMComms.getValue();
       PrintToScreen.threadMessage(officialName, result + " is the value in index " + index);
@@ -57,6 +59,13 @@ public class Processor implements Runnable{
 	  procAndDSMComms.doAStore(index, value);
 	//interrupt the DSM to store the data
 	  dsmThread.interrupt();
+	  
+	  try{
+			Thread.sleep(100);
+		}catch(InterruptedException e){
+			
+		}
+	  
     //try to get into critical section
     //lock();
   }
@@ -105,10 +114,14 @@ public class Processor implements Runnable{
 	  //load some data
 	  loadData(i);
 	}
-	/*
+	
+	
+	
 	for(int i = 0; i < 10; i++){
+		PrintToScreen.threadMessage(officialName, "storing " + i*10);
 		  //store some data
 		  storeData(i, i*10);
-		}*/
+		  
+	}
   }
 }
