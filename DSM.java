@@ -18,7 +18,7 @@ public class DSM implements Runnable{
   private Thread procThread;
   private Thread broadcastAgentThread;
   
-  public DSM(Thread procThread, int processID, Thread broadcastSystemThread){
+  public DSM(Thread procThread, int processID, Thread broadcastSystemThread, BroadcastSystem broadcastSystem){
 	  officialName = "DSM of " + procThread.getName() + ", processor id: " + processID;
 	  
     this.procThread = procThread;
@@ -26,7 +26,7 @@ public class DSM implements Runnable{
     
     localMemory = new LocalMemory(processID);
     
-    broadcastAgent = new BroadcastAgent( broadcastSystemThread, localMemory, processID);
+    broadcastAgent = new BroadcastAgent( broadcastSystemThread, localMemory, processID, broadcastSystem);
     broadcastAgentThread = broadcastAgent.startThread();
   
     dsmThread = new Thread(this);

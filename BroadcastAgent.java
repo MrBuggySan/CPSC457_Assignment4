@@ -1,28 +1,44 @@
 import java.lang.InterruptedException;
 
 public class BroadcastAgent implements Runnable{
-	private Thread broadcastSystemThread;
+	
 	private LocalMemory localMemory;
+	
+	private Thread broadcastSystemThread;
+	private BroadcastSystem broadcastSystem;
 	
 	private boolean doABroadcast;
 	private int address;
 	private int value;
+	int id;
+	
+	private boolean doRecieve;
+	private int storeAddress;
+	private int storeValue;
 	
 	
 	private Thread broadcastAgentThread;
 	
 	private String officialName;
-	public BroadcastAgent( Thread broadcastSystemThread, LocalMemory localMemory, int processID){
-		
-		officialName = "BroadcastAgent of processor id: " + processID;
-		
-		
+	public BroadcastAgent( Thread broadcastSystemThread, LocalMemory localMemory, int processID, BroadcastSystem broadcastSystem){
 		this.broadcastSystemThread = broadcastSystemThread;
 		//This reference will be accessed during recieve
 		this.localMemory = localMemory;
-		
+		this.id = processID;
+		this.broadcastSystem = broadcastSystem;
 		broadcastAgentThread = new Thread(this);
+		broadcastSystem.addBroadcastAgent(this, broadcastAgentThread); // add this to the list of broadcastAgents
+		officialName = "BroadcastAgent of processor id: " + processID;
+		
+		
+		doABroadcast= false;
+		doRecieve = false;
 	}
+	
+	 public Thread startThread(){
+		  broadcastAgentThread.start();
+		  return broadcastAgentThread;
+	  }
 	
 	public void doaBroadcast(int address, int value){
 		doABroadcast = true;
@@ -30,11 +46,11 @@ public class BroadcastAgent implements Runnable{
 		this.value = value;
 	}
 	
-	  public Thread startThread(){
-		  broadcastAgentThread.start();
-		  return broadcastAgentThread;
-	  }
-
+	public void recieveStore(int address, int value){
+		storeAddress = address;
+		storeValue = value;
+		doRecieve = true;
+	}
 	
   public void run(){
 	  	while(true){
@@ -45,20 +61,27 @@ public class BroadcastAgent implements Runnable{
 	  	        }
 	  		}catch(InterruptedException e){
 	  			if(doABroadcast){
-	  				broadcast(address, value);
-	  				
+	  				broadcastSystem.doaBroadcast(address, value, id);
+	  				broadcastSystemThread.interrupt();
 	  				//finished broadcasting
 	  				doABroadcast = false;
 	  			}else{
+	  				if(doRecieve){
+	  					String name = "BroadcastAgent of " + id;
+	  					PrintToScreen.threadMessage(name, "called by BroadcastSystem to store " + storeValue + " into " + storeAddress);
+	  					localMemory.store(storeAddress, storeValue);
+	  					doRecieve = false;
+	  				}else{
 	  				//we shound never get here
+	  				}
+	  				
 	  			}
 	  		}
 	  	}
   }
   
 
-  public void broadcast(int index, int value){
-	  PrintToScreen.threadMessage(officialName, "broadcasting a store of index:"+index+" value:"+value);
-  }
+ 
   
+  public int getID(){return id;}
 }

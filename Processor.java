@@ -17,14 +17,14 @@ public class Processor implements Runnable{
  
   private String officialName;
 
-  public Processor(int processID, int[] Flag, int[] Turn, Thread broadcastSystemThread){
+  public Processor(int processID, int[] Flag, int[] Turn, Thread broadcastSystemThread, BroadcastSystem broadcastSystem){
     this.processID = processID;
     this.Flag = Flag;
     this.Turn = Turn;
     
     processorThread = new Thread(this);
    
-    dsm = new DSM(processorThread, processID, broadcastSystemThread);
+    dsm = new DSM(processorThread, processID, broadcastSystemThread, broadcastSystem);
 	dsmThread = dsm.startThread();
 	officialName = Thread.currentThread().getName() + ", id: " + processID;
 	
@@ -115,13 +115,16 @@ public class Processor implements Runnable{
 	  loadData(i);
 	}
 	
-	
-	
-	for(int i = 0; i < 10; i++){
-		PrintToScreen.threadMessage(officialName, "storing " + i*10);
-		  //store some data
-		  storeData(i, i*10);
-		  
+	if(processID == 5){
+		for(int i = 0; i < 10; i++){
+			PrintToScreen.threadMessage(officialName, "storing " + i*10);
+			  //store some data
+			  storeData(i, i*10);
+		}
 	}
+	
+	
   }
+  
+  
 }
