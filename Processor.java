@@ -100,7 +100,7 @@ public class Processor implements Runnable{
         //the BroadcastSystem has its own random delay
         Thread.sleep(500);
         //problem: this sleep is still quicker than the cascading interrupts to broadcast the store. Therefore some of the interrupts are made while the
-        //BroadcastSystem is still broadcasting to other BroadcastAgents 
+        //BroadcastSystem is still broadcasting to other BroadcastAgents
       }catch(InterruptedException e){
           PrintToScreen.threadMessage(officialName, " interrupted while in critical section");
       }
@@ -133,15 +133,13 @@ public class Processor implements Runnable{
 	  //load some data
 	  loadData(i);
 	}
-
-	// if(processorID == 5 || processorID == 6){
 		for(int i = 0; i < 10; i++){
       int storeVal = processorID * 10;
       PrintToScreen.threadMessage(officialName, TextColor.ANSI_BLUE + "Attempting to store " + storeVal + TextColor.ANSI_RESET);
 			  //store some data
 			  storeData(i, storeVal);
 		}
-	// }
+
 
 
   }
