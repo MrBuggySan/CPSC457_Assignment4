@@ -14,6 +14,8 @@ public class Assignment4{
     //initialize everything
 	int[] flag = new int[numProcessors];
 	int[] turn = new int[numProcessors-1];
+	
+	TokenRing tokenRing = new TokenRing(numProcessors);
 
 	//This is the only broadcastSystem available
 	BroadcastSystem broadcastSystem = BroadcastSystem.getInstance(numProcessors);
@@ -24,12 +26,14 @@ public class Assignment4{
 	Thread[] procThreadList = new Thread[numProcessors];
 	//start all processors
 	for(int id = 0; id < numProcessors; id++){
-		procThreadList[id] = (new Processor(id, flag, turn, broadcastSysThread, broadcastSystem)).startThread();
+		procThreadList[id] = (new Processor(id, flag, turn, broadcastSysThread, broadcastSystem, tokenRing)).startThread();
 	}
 
 	while(!isReady()){
 
 	}
+	System.out.println(numReady);
+	tokenRing.activateRing("token");
 
 	for(int id = 0; id < numProcessors; id++){
 		procThreadList[id].interrupt();

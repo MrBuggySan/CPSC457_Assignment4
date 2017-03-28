@@ -3,8 +3,7 @@ import java.lang.InterruptedException;
 public class DSM implements Runnable{
   private LocalMemory localMemory;
   private BroadcastAgent broadcastAgent;
-
-
+  private TokenRingAgent tokenRingAgent;
 
   private String officialName;
   private int processID;
@@ -17,8 +16,9 @@ public class DSM implements Runnable{
   private Thread dsmThread;
   private Thread procThread;
   private Thread broadcastAgentThread;
+  private Thread TokenRingAgentThread;
 
-  public DSM(Thread procThread, int processID, Thread broadcastSystemThread, BroadcastSystem broadcastSystem){
+  public DSM(Thread procThread, int processID, Thread broadcastSystemThread, BroadcastSystem broadcastSystem, Thread tokenRingAgentThread, TokenRingAgent tokenRingAgent){
 	  officialName = "DSM of processor id: " + processID;
 
     this.procThread = procThread;
@@ -28,6 +28,9 @@ public class DSM implements Runnable{
 
     broadcastAgent = new BroadcastAgent( broadcastSystemThread, localMemory, processID, procThread, broadcastSystem);
     broadcastAgentThread = broadcastAgent.startThread();
+
+    this.tokenRingAgent = tokenRingAgent;
+    this.TokenRingAgentThread = tokenRingAgentThread;
 
     dsmThread = new Thread(this);
   }
@@ -89,7 +92,6 @@ public class DSM implements Runnable{
         	  store(index, value);
           }else{
             //We should never get here
-
           }
         }
 
@@ -103,7 +105,7 @@ public class DSM implements Runnable{
 
 
   private void store(int address, int value){
-    //while(not have the token);
+    while(tokenRingAgent.getID() == null);
     localMemory.store(address, value);
 
     //Use the broadcastAgent to tell the others of this write

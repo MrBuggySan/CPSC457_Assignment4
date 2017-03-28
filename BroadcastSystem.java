@@ -50,6 +50,10 @@ public class BroadcastSystem implements Runnable{
     numBrodAgentReady++;
   }
 
+  public synchronized boolean isReady(){
+	  return (numBrodAgentReady == (procSize - 1))?  true : false;
+	}
+  
   public void run(){
     PrintToScreen.threadMessage("BroadcastSystem", "Starting BroadcastAgent thread");
 	  while(true){
@@ -75,7 +79,7 @@ public class BroadcastSystem implements Runnable{
               Thread.sleep(n);
 
               // //wait for the broadcastAgents to recieve the store
-              while(numBrodAgentReady != Assignment4.numProcessors - 1){
+              while(!this.isReady()){
                 // Thread.sleep(n);
               }
               numBrodAgentReady = 0;

@@ -7,6 +7,7 @@ public class Processor implements Runnable{
 
   private Thread processorThread;
 
+  private Thread tokenRingAgentThread;
   private TokenRingAgent tokenRingAgent;
 
   private int numProcessors;
@@ -17,14 +18,17 @@ public class Processor implements Runnable{
 
   private String officialName;
 
-  public Processor(int processorID, int[] Flag, int[] Turn, Thread broadcastSystemThread, BroadcastSystem broadcastSystem){
+  public Processor(int processorID, int[] Flag, int[] Turn, Thread broadcastSystemThread, BroadcastSystem broadcastSystem, TokenRing tokenRing){
     this.processorID = processorID;
     this.Flag = Flag;
     this.Turn = Turn;
 
     processorThread = new Thread(this);
-
-    dsm = new DSM(processorThread, processorID, broadcastSystemThread, broadcastSystem);
+    tokenRingAgent = new TokenRingAgent(processorID, numProcessors);
+    tokenRingAgent.getRing(tokenRing);
+    tokenRing.addToken(processorID, tokenRingAgent);
+    tokenRingAgentThread = tokenRingAgent.startThread();
+    dsm = new DSM(processorThread, processorID, broadcastSystemThread, broadcastSystem, tokenRingAgentThread, tokenRingAgent);
   	dsmThread = dsm.startThread();
   	officialName = TextColor.ANSI_RED + "processor id: " + processorID + TextColor.ANSI_RESET;
 
@@ -80,6 +84,7 @@ public class Processor implements Runnable{
     }
     Flag[processorID] = criticalSectionLevel;
     //enter the critical section
+    tokenRingAgent.setPass();
     enterCriticalSection();
   }
 
@@ -106,6 +111,7 @@ public class Processor implements Runnable{
       }catch(InterruptedException e){
     	  PrintToScreen.threadMessage(officialName, " exiting critical section");
       }
+      tokenRingAgentThread.interrupt();
       unlock();
   }
 
