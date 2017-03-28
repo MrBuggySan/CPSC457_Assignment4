@@ -116,14 +116,16 @@ public class Processor implements Runnable{
 
   public void run(){
   	PrintToScreen.threadMessage(officialName, "ready to start instructions");
+
     try{
+      Thread.sleep(10);
       Assignment4.incrementNumReady();
       while(true){
         Thread.sleep(100);
       }
     }catch(InterruptedException e){
       try{
-          Thread.sleep(100); // extra waiting time before we actually start
+          Thread.sleep(50); // extra waiting time before we actually start
       }catch(InterruptedException t){
       }
     }

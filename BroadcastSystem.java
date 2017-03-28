@@ -15,6 +15,8 @@ public class BroadcastSystem implements Runnable{
 	private int callerID;
 	private int procSize;
 
+  private int numBrodAgentReady = 0;
+
   private BroadcastSystem(int procSize){
   	this.procSize = procSize;
   	broadcastAgentList = new BroadcastAgent[procSize];
@@ -44,6 +46,10 @@ public class BroadcastSystem implements Runnable{
 		this.value = value;
 	}
 
+  public synchronized void incrNumBrodAgentReady(){
+    numBrodAgentReady++;
+  }
+
   public void run(){
     PrintToScreen.threadMessage("BroadcastSystem", "Starting BroadcastAgent thread");
 	  while(true){
@@ -67,6 +73,12 @@ public class BroadcastSystem implements Runnable{
               int n = rand.nextInt(20) + 1; //random delay between 1ms and 20ms
               PrintToScreen.threadMessage(officialName, "random sleep initiated");
               Thread.sleep(n);
+
+              // //wait for the broadcastAgents to recieve the store
+              while(numBrodAgentReady != Assignment4.numProcessors - 1){
+                // Thread.sleep(n);
+              }
+              numBrodAgentReady = 0;
 		  				//finished broadcasting
 		  				doABroadcast = false;
 		  				broadcastAgentList[callerID].procInterrupt();

@@ -1,9 +1,13 @@
 public class Assignment4{
-	public static int numProcessors = 10;
+	public static final int numProcessors = 10;
 	private static int numReady = 0;
 
 	public static synchronized void incrementNumReady(){
 		numReady++;
+	}
+
+	public static synchronized boolean isReady(){
+		return (numReady == 10)?  true : false;
 	}
 
   public static void main(String[] args){
@@ -23,7 +27,7 @@ public class Assignment4{
 		procThreadList[id] = (new Processor(id, flag, turn, broadcastSysThread, broadcastSystem)).startThread();
 	}
 
-	while(numReady !=10){
+	while(!isReady()){
 
 	}
 

@@ -3,7 +3,7 @@ import java.lang.InterruptedException;
 public class BroadcastAgent implements Runnable{
 
 	private LocalMemory localMemory;
-	
+
 	private Thread procThread;
 	private Thread broadcastSystemThread;
 	private BroadcastSystem broadcastSystem;
@@ -52,7 +52,7 @@ public class BroadcastAgent implements Runnable{
 		storeValue = value;
 		doRecieve = true;
 	}
-	
+
 	public void procInterrupt(){
 		this.procThread.interrupt();
 	}
@@ -76,6 +76,8 @@ public class BroadcastAgent implements Runnable{
 
 	  					PrintToScreen.threadMessage(officialName, "called by BroadcastSystem to store " + storeValue + " into " + storeAddress);
 	  					localMemory.store(storeAddress, storeValue);
+							//Let the BroadcastSystem know that we are done
+							broadcastSystem.incrNumBrodAgentReady();
 	  					doRecieve = false;
 	  				}else{
 	  				//we shound never get here
