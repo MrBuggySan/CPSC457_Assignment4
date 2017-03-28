@@ -98,7 +98,9 @@ public class Processor implements Runnable{
       try{
         //Adjust the value here so that other objects under DSM and other DSMs can catch up
         //the BroadcastSystem has its own random delay
-        Thread.sleep(200);
+        Thread.sleep(500);
+        //problem: this sleep is still quicker than the cascading interrupts to broadcast the store. Therefore some of the interrupts are made while the
+        //BroadcastSystem is still broadcasting to other BroadcastAgents 
       }catch(InterruptedException e){
           PrintToScreen.threadMessage(officialName, " interrupted while in critical section");
       }
@@ -118,7 +120,10 @@ public class Processor implements Runnable{
         Thread.sleep(100);
       }
     }catch(InterruptedException e){
-
+      try{
+          Thread.sleep(100); // extra waiting time before we actually start
+      }catch(InterruptedException t){
+      }
     }
 
 
@@ -129,14 +134,14 @@ public class Processor implements Runnable{
 	  loadData(i);
 	}
 
-	if(processorID == 5){
+	// if(processorID == 5 || processorID == 6){
 		for(int i = 0; i < 10; i++){
       int storeVal = processorID * 10;
       PrintToScreen.threadMessage(officialName, TextColor.ANSI_BLUE + "Attempting to store " + storeVal + TextColor.ANSI_RESET);
 			  //store some data
 			  storeData(i, storeVal);
 		}
-	}
+	// }
 
 
   }

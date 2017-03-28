@@ -64,8 +64,8 @@ public class BroadcastSystem implements Runnable{
 		  				}
               //simulate random delay in broadcastSystem
               Random rand = new Random();
-              int n = rand.nextInt(20) + 1; //random delay between 1ms and 50ms
-
+              int n = rand.nextInt(20) + 1; //random delay between 1ms and 20ms
+              PrintToScreen.threadMessage(officialName, "random sleep initiated");
               Thread.sleep(n);
 		  				//finished broadcasting
 		  				doABroadcast = false;
