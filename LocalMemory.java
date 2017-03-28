@@ -20,11 +20,11 @@ public class LocalMemory{
 
   //TODO: activate synchronization since this object is shared by DSM and BroadcastAgent
 
-  public int synchronized load(int address){
+  public synchronized int  load(int address){
     return memoryArray.get(address);
   }
 
-  public void synchronized store(int address, int value){
+  public synchronized void  store(int address, int value){
     memoryArray.set(address, new Integer (value));
   }
 

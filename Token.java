@@ -8,25 +8,25 @@ public class Token
 {
 	private static int counter = 0;
 	private int numID;
-	private int agentNum = null;
-	
+	private int agentNum = -1;
+
 	public Token(String message)
 	{
 		this.numID = counter;
 		counter++;
-		this.agentNum = null;
+		this.agentNum = -1;
 	}
-	
+
 	public int getTokenID()
 	{
 		return this.numID;
 	}
-	
+
 	public int getAgentNum()
 	{
 		return this.agentNum;
 	}
-	
+
 	public void setAgentNum(int agentNum)
 	{
 		this.agentNum = agentNum;

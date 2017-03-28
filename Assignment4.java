@@ -1,6 +1,10 @@
 public class Assignment4{
 	public static int numProcessors = 10;
-	public static int numReady = 0;
+	private static int numReady = 0;
+
+	public static synchronized void incrementNumReady(){
+		numReady++;
+	}
 
   public static void main(String[] args){
     //initialize everything

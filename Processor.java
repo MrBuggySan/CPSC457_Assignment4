@@ -117,7 +117,7 @@ public class Processor implements Runnable{
   public void run(){
   	PrintToScreen.threadMessage(officialName, "ready to start instructions");
     try{
-      Assignment4.numReady++;
+      Assignment4.incrementNumReady();
       while(true){
         Thread.sleep(100);
       }
