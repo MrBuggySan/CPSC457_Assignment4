@@ -26,7 +26,7 @@ public class DSM implements Runnable{
 
     localMemory = new LocalMemory(processID);
 
-    broadcastAgent = new BroadcastAgent( broadcastSystemThread, localMemory, processID, broadcastSystem);
+    broadcastAgent = new BroadcastAgent( broadcastSystemThread, localMemory, processID, procThread, broadcastSystem);
     broadcastAgentThread = broadcastAgent.startThread();
 
     dsmThread = new Thread(this);

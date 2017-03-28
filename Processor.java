@@ -96,13 +96,15 @@ public class Processor implements Runnable{
     //interrupt the DSM to store the data
       dsmThread.interrupt();
       try{
-        //Adjust the value here so that other objects under DSM and other DSMs can catch up
-        //the BroadcastSystem has its own random delay
-        Thread.sleep(500);
-        //problem: this sleep is still quicker than the cascading interrupts to broadcast the store. Therefore some of the interrupts are made while the
-        //BroadcastSystem is still broadcasting to other BroadcastAgents
+      while(true){
+    		  //Adjust the value here so that other objects under DSM and other DSMs can catch up
+    		  //the BroadcastSystem has its own random delay
+    	  Thread.sleep(500);
+    		  //problem: this sleep is still quicker than the cascading interrupts to broadcast the store. Therefore some of the interrupts are made while the
+    		  //BroadcastSystem is still broadcasting to other BroadcastAgents
+    	  	}
       }catch(InterruptedException e){
-          PrintToScreen.threadMessage(officialName, " interrupted while in critical section");
+    	  PrintToScreen.threadMessage(officialName, " exiting critical section");
       }
       unlock();
   }

@@ -3,7 +3,8 @@ import java.lang.InterruptedException;
 public class BroadcastAgent implements Runnable{
 
 	private LocalMemory localMemory;
-
+	
+	private Thread procThread;
 	private Thread broadcastSystemThread;
 	private BroadcastSystem broadcastSystem;
 
@@ -20,12 +21,13 @@ public class BroadcastAgent implements Runnable{
 	private Thread broadcastAgentThread;
 
 	private String officialName;
-	public BroadcastAgent( Thread broadcastSystemThread, LocalMemory localMemory, int processID, BroadcastSystem broadcastSystem){
+	public BroadcastAgent( Thread broadcastSystemThread, LocalMemory localMemory, int processID, Thread procThread, BroadcastSystem broadcastSystem){
 		this.broadcastSystemThread = broadcastSystemThread;
 		//This reference will be accessed during recieve
 		this.localMemory = localMemory;
 		this.id = processID;
 		this.broadcastSystem = broadcastSystem;
+		this.procThread = procThread;
 		broadcastAgentThread = new Thread(this);
 		broadcastSystem.addBroadcastAgent(this, broadcastAgentThread); // add this to the list of broadcastAgents
 		officialName = "BroadcastAgent of processor id: " + processID;
@@ -49,6 +51,10 @@ public class BroadcastAgent implements Runnable{
 		storeAddress = address;
 		storeValue = value;
 		doRecieve = true;
+	}
+	
+	public void procInterrupt(){
+		this.procThread.interrupt();
 	}
 
   public void run(){

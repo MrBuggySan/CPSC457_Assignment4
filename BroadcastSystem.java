@@ -69,6 +69,7 @@ public class BroadcastSystem implements Runnable{
               Thread.sleep(n);
 		  				//finished broadcasting
 		  				doABroadcast = false;
+		  				broadcastAgentList[callerID].procInterrupt();
 		  			}else{
 		  				//we should never get here
 		  			}
