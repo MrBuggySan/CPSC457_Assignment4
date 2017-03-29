@@ -34,11 +34,12 @@ public class BroadcastSystem implements Runnable{
     return null;
   }
 
-
+  // sets the value to be broadcasted
   public void setValue(int value){
 	  this.value= value;
   }
 
+  // sets flags indicating a broadcast will happen and stores the values needed to broadcast
   public void doaBroadcast(int address, int value, int id){
 		doABroadcast = true;
 		this.callerID = id;
@@ -46,10 +47,12 @@ public class BroadcastSystem implements Runnable{
 		this.value = value;
 	}
 
+  // counter to keep track of the number of broadcastAgents that are finished their broadcast
   public synchronized void incrNumBrodAgentReady(){
     numBrodAgentReady++;
   }
 
+  // returns true if all broadcastAgents are finished, and false otherwise
   public synchronized boolean isReady(){
 	  return (numBrodAgentReady == (procSize - 1))?  true : false;
 	}
@@ -65,24 +68,23 @@ public class BroadcastSystem implements Runnable{
 	  		}catch(InterruptedException e){
 	  			try{
 	  				if(doABroadcast){
-              PrintToScreen.threadMessage(officialName, "proc "+ callerID + " wants everyone else to store " + value + ", at index " + address);
-              for(int i = 0 ; i < procSize; i++){
+	  					PrintToScreen.threadMessage(officialName, "proc "+ callerID + " wants everyone else to store " + value + ", at index " + address);
+	  					for(int i = 0 ; i < procSize; i++){				// for each broadcastAgent that isn't the Agent calling the store, sends a prompt to do a store
 		  					if(i == callerID) continue;
 		  					broadcastAgentList[i].recieveStore(address, value);
 		  					broadcastAgentThreadList[i].interrupt();
+	  					}
+	  					//simulate random delay in broadcastSystem
+	  					Random rand = new Random();
+	  					int n = rand.nextInt(20) + 1; //random delay between 1ms and 20ms
+	  					PrintToScreen.threadMessage(officialName, "random sleep initiated");
+	  					Thread.sleep(n);
 
-		  				}
-              //simulate random delay in broadcastSystem
-              Random rand = new Random();
-              int n = rand.nextInt(20) + 1; //random delay between 1ms and 20ms
-              PrintToScreen.threadMessage(officialName, "random sleep initiated");
-              Thread.sleep(n);
-
-              // //wait for the broadcastAgents to recieve the store
-              while(!this.isReady()){
-                // Thread.sleep(n);
-              }
-              numBrodAgentReady = 0;
+	  					// //wait for the broadcastAgents to recieve the store
+	  					while(!this.isReady()){
+	  					// Thread.sleep(n);
+	  					}
+	  					numBrodAgentReady = 0;
 		  				//finished broadcasting
 		  				doABroadcast = false;
 		  				broadcastAgentList[callerID].procInterrupt();

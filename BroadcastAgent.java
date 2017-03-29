@@ -36,23 +36,27 @@ public class BroadcastAgent implements Runnable{
 		doRecieve = false;
 	}
 
+	// starts the broadcastAgent Thread and returns the thread
 	 public Thread startThread(){
 		  broadcastAgentThread.start();
 		  return broadcastAgentThread;
 	  }
 
+	// sets flags indicating a broadcast
 	public void doaBroadcast(int address, int value){
 		doABroadcast = true;
 		this.address = address;
 		this.value = value;
 	}
-
+	
+	// sets flags indicating a store being received
 	public void recieveStore(int address, int value){
 		storeAddress = address;
 		storeValue = value;
 		doRecieve = true;
 	}
 
+	// interrupts this thread
 	public void procInterrupt(){
 		this.procThread.interrupt();
 	}
@@ -66,13 +70,13 @@ public class BroadcastAgent implements Runnable{
 	  	        	Thread.sleep(100);
 	  	        }
 	  		}catch(InterruptedException e){
-	  			if(doABroadcast){
+	  			if(doABroadcast){					// If the flags indicate a is being made broadcast, sends an interrupt to broadcastSystem
 	  				broadcastSystem.doaBroadcast(address, value, id);
 	  				broadcastSystemThread.interrupt();
 	  				//finished broadcasting
 	  				doABroadcast = false;
 	  			}else{
-	  				if(doRecieve){
+	  				if(doRecieve){					// If the flags indicate a broadcast is being received, store the values received into local memory
 
 	  					PrintToScreen.threadMessage(officialName, "called by BroadcastSystem to store " + storeValue + " into " + storeAddress);
 	  					localMemory.store(storeAddress, storeValue);

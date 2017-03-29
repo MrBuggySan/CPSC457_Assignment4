@@ -18,27 +18,29 @@ public class Processor implements Runnable{
 
   private String officialName;
 
-  public Processor(int processorID, int[] Flag, int[] Turn, Thread broadcastSystemThread, BroadcastSystem broadcastSystem, TokenRing tokenRing){
+  public Processor(int processorID, int[] Flag, int[] Turn, Thread broadcastSystemThread, BroadcastSystem broadcastSystem, TokenRing tokenRing, int numProcessors){
     this.processorID = processorID;
     this.Flag = Flag;
     this.Turn = Turn;
 
-    processorThread = new Thread(this);
-    tokenRingAgent = new TokenRingAgent(processorID, numProcessors);
-    tokenRingAgent.getRing(tokenRing);
-    tokenRing.addToken(processorID, tokenRingAgent);
-    tokenRingAgentThread = tokenRingAgent.startThread();
-    dsm = new DSM(processorThread, processorID, broadcastSystemThread, broadcastSystem, tokenRingAgentThread, tokenRingAgent);
-  	dsmThread = dsm.startThread();
+    processorThread = new Thread(this);										// A new thread is created for this processor
+    tokenRingAgent = new TokenRingAgent(processorID, numProcessors);		// A new TokenRingAgent is initialized using the same processor ID
+    tokenRingAgent.getRing(tokenRing);										// gives the new TokenRingAgent a reference to the TokenRing
+    tokenRingAgentThread = tokenRingAgent.startThread();					// Starts the TokenRingAgent Thread and gives the processor a reference to it
+    tokenRing.addToken(processorID, tokenRingAgent, tokenRingAgentThread);	// the TokenRingAgent and its thread is added into the TokenRing
+    dsm = new DSM(processorThread, processorID, broadcastSystemThread, broadcastSystem, tokenRingAgentThread, tokenRingAgent);	// A new DSM is initialized
+  	dsmThread = dsm.startThread();											// the DSM thread is started
   	officialName = TextColor.ANSI_RED + "processor id: " + processorID + TextColor.ANSI_RESET;
 
 
   }
 
+  // When called, runs the processor's thread and returns the thread
   public Thread startThread(){
     processorThread.start();
     return processorThread;
   }
+  // Starts up a load
   private void loadData(int index){
     //init the load
     dsm.doALoad(index);
@@ -72,7 +74,7 @@ public class Processor implements Runnable{
 
   private void lock(){
     int numPlayers = Assignment4.numProcessors;
-    int criticalSectionLevel = numPlayers - 1; // is this - 1 or - 2?
+    int criticalSectionLevel = numPlayers - 1; // indicates the level of the critical section
     for(int currentLevel = 0; currentLevel < criticalSectionLevel; currentLevel++ ){ //TODO: check the conditions, should we test at the level before Critical section ?
       Flag[processorID] = currentLevel; // keept track of the processsor's level
       Turn[currentLevel] = processorID; // keep track of the last processor to enter the currentLevel
@@ -84,7 +86,7 @@ public class Processor implements Runnable{
     }
     Flag[processorID] = criticalSectionLevel;
     //enter the critical section
-    tokenRingAgent.setPass();
+    tokenRingAgent.setPass();		// The Pass in the tokenRingAgent that corresponds to this processor is set to false
     enterCriticalSection();
   }
 
@@ -111,8 +113,8 @@ public class Processor implements Runnable{
       }catch(InterruptedException e){
     	  PrintToScreen.threadMessage(officialName, " exiting critical section");
       }
-      tokenRingAgentThread.interrupt();
-      unlock();
+      tokenRingAgentThread.interrupt();		// Sends an interrupt to the TokenRingAgent Thread indicating that the Thread is exiting the critical section
+      unlock();								// exits the critical section
   }
 
 
@@ -125,9 +127,9 @@ public class Processor implements Runnable{
 
     try{
       Thread.sleep(10);
-      Assignment4.incrementNumReady();
+      Assignment4.incrementNumReady();			// indicates to the main that this particular processor is ready to start
       while(true){
-        Thread.sleep(100);
+        Thread.sleep(100);						// waits until an interrupt from the main is received indicating that all processors are now ready
       }
     }catch(InterruptedException e){
       try{
