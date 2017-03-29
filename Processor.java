@@ -25,9 +25,10 @@ public class Processor implements Runnable{
 
     processorThread = new Thread(this);										// A new thread is created for this processor
     tokenRingAgent = new TokenRingAgent(processorID, numProcessors);		// A new TokenRingAgent is initialized using the same processor ID
-    tokenRingAgent.getRing(tokenRing);										// gives the new TokenRingAgent a reference to the TokenRing
+    tokenRingAgent.setRing(tokenRing);										// gives the new TokenRingAgent a reference to the TokenRing
+
     tokenRingAgentThread = tokenRingAgent.startThread();					// Starts the TokenRingAgent Thread and gives the processor a reference to it
-    tokenRing.addToken(processorID, tokenRingAgent, tokenRingAgentThread);	// the TokenRingAgent and its thread is added into the TokenRing
+    tokenRing.addTokenAgent(processorID, tokenRingAgent, tokenRingAgentThread);	// the TokenRingAgent and its thread is added into the TokenRing
     dsm = new DSM(processorThread, processorID, broadcastSystemThread, broadcastSystem, tokenRingAgentThread, tokenRingAgent);	// A new DSM is initialized
   	dsmThread = dsm.startThread();											// the DSM thread is started
   	officialName = TextColor.ANSI_RED + "processor id: " + processorID + TextColor.ANSI_RESET;
@@ -86,7 +87,7 @@ public class Processor implements Runnable{
     }
     Flag[processorID] = criticalSectionLevel;
     //enter the critical section
-    tokenRingAgent.setPass();		// The Pass in the tokenRingAgent that corresponds to this processor is set to false
+    //tokenRingAgent.setPass();		// The Pass in the tokenRingAgent that corresponds to this processor is set to false
     enterCriticalSection();
   }
 
@@ -104,11 +105,7 @@ public class Processor implements Runnable{
       dsmThread.interrupt();
       try{
       while(true){
-    		  //Adjust the value here so that other objects under DSM and other DSMs can catch up
-    		  //the BroadcastSystem has its own random delay
     	  Thread.sleep(500);
-    		  //problem: this sleep is still quicker than the cascading interrupts to broadcast the store. Therefore some of the interrupts are made while the
-    		  //BroadcastSystem is still broadcasting to other BroadcastAgents
     	  	}
       }catch(InterruptedException e){
     	  PrintToScreen.threadMessage(officialName, " exiting critical section");
@@ -141,7 +138,8 @@ public class Processor implements Runnable{
 
 	PrintToScreen.threadMessage(officialName, "Starting now...");
 
-	for(int i = 0; i < 10; i++){
+while(true){
+  for(int i = 0; i < 10; i++){
 	  //load some data
 	  loadData(i);
 	}
@@ -151,10 +149,15 @@ public class Processor implements Runnable{
 			  //store some data
 			  storeData(i, storeVal);
 		}
-
-
+  try{
+      Thread.sleep(10000);
+  }catch(InterruptedException e){
 
   }
+
+  PrintToScreen.threadMessage(officialName, "done doing my job, I will start over");
+}
+}
 
 
 }

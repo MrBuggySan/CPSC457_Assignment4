@@ -14,7 +14,7 @@ public class Assignment4{
     //initialize everything
 	int[] flag = new int[numProcessors];	// One flag for each processor
 	int[] turn = new int[numProcessors-1];	// One turn for each level in the critical section
-	
+
 	TokenRing tokenRing = new TokenRing(numProcessors);		// A new TokenRing is intialized that holds arrays that have lengths matching the number of processors
 
 	//This is the only broadcastSystem available
@@ -23,7 +23,7 @@ public class Assignment4{
 //	broadcastSystem.setValue(990);
 	broadcastSysThread.start();									// The broadcastSystem Thread is started
 
-	Thread[] procThreadList = new Thread[numProcessors];		// creates an array of threads holding the threads of the processors
+	Thread[] procThreadList = new Thread[numProcessors];		//creates an array of threads holding the threads of the processors
 	//start all processors
 	for(int id = 0; id < numProcessors; id++){
 		procThreadList[id] = (new Processor(id, flag, turn, broadcastSysThread, broadcastSystem, tokenRing, numProcessors)).startThread();
@@ -34,10 +34,11 @@ public class Assignment4{
 	}
 	tokenRing.activateRing("token");	// The tokenRing is initialized with a token holding the message "token"
 
+	//start all the processor at the same time
 	for(int id = 0; id < numProcessors; id++){
 		procThreadList[id].interrupt();
 	}
-	//start all the processor at the same time
+
 
   }
 }

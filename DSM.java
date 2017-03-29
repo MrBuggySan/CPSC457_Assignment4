@@ -29,7 +29,7 @@ public class DSM implements Runnable{
     broadcastAgent = new BroadcastAgent( broadcastSystemThread, localMemory, processID, procThread, broadcastSystem); // initializes a new broadcastAgent
     broadcastAgentThread = broadcastAgent.startThread(); // Starts the broadcastAgent's thread
 
-    this.tokenRingAgent = tokenRingAgent;					// creates a reference to TokenRingAgent of the corresponding ID 
+    this.tokenRingAgent = tokenRingAgent;					// creates a reference to TokenRingAgent of the corresponding ID
     this.TokenRingAgentThread = tokenRingAgentThread;		// creates a reference to TokenRingAgent Thread of the corresponding ID
 
     dsmThread = new Thread(this);		// Initializes a new Thread for this DSM
@@ -53,7 +53,7 @@ public class DSM implements Runnable{
     setLoadCommand();
 
   }
-  
+
   // sets flags indicating a store and gets the index of the store and the value we wish to store
   public void doAStore(int index, int value){
 	  this.index = index;
@@ -109,7 +109,13 @@ public class DSM implements Runnable{
 
 
   private void store(int address, int value){
-    while(tokenRingAgent.getID() == null);			// Prevents a processor from following through with it's store until it's TokenRingAgent is holding the Token
+    while(!tokenRingAgent.holdingToken()){// Prevents a processor from following through with it's store until it's TokenRingAgent is holding the Token
+      try{
+        Thread.sleep(100);
+      }catch(InterruptedException e){
+        
+      }
+    }
     localMemory.store(address, value);
 
     //Use the broadcastAgent to tell the others of this write
